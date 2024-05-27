@@ -1,5 +1,5 @@
 {
-    "name": "omnipay/fincode",
+    "name": "diepchiaser/fincode",
     "type": "library",
     "description": "Fincode gateway for Omnipay",
     "keywords": ["omnipay", "fincode"],
