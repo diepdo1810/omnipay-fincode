@@ -57,9 +57,28 @@ abstract class AbstractRequest extends OmnipayAbstractRequest
     {
         $client = new Client();
 
-        return $client->request($method, $this->getEndpoint() . $url, [
+        $options = [
             'headers' => $this->getHeaders(),
-            'json' => $data,
-        ]);
+        ];
+
+        if ($method === 'POST') {
+            $options['json'] = $data;
+        }
+
+        if ($method === 'GET') {
+            $options['query'] = $data;
+        }
+
+        return $client->request($method, $this->getEndpoint() . $url, $options);
+    }
+
+    public function setTransactionId($value)
+    {
+        return $this->setParameter('session_id', $value);
+    }
+
+    public function getTransactionId()
+    {
+        return $this->getParameter('session_id');
     }
 }

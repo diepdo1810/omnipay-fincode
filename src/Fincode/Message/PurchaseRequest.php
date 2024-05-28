@@ -21,6 +21,7 @@ class PurchaseRequest extends AbstractRequest
     public function sendData($data)
     {
         $response = $this->sendRequest('POST', '/sessions', $data);
+        $this->setTransactionId($data['transaction']['order_id']);
 
         return $this->response = new PurchaseResponse($this, json_decode($response->getBody()->getContents(), true));
     }

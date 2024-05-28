@@ -8,7 +8,7 @@ class CompletePurchaseResponse extends AbstractResponse
 {
     public function isSuccessful()
     {
-        return isset($this->data['status']) && $this->data['status'] === 'success';
+        return isset($this->data['status']) && $this->data['status'] === 'AUTHORIZED';
     }
 
     public function getTransactionReference()
@@ -16,8 +16,8 @@ class CompletePurchaseResponse extends AbstractResponse
         return $this->data['id'] ?? 1;
     }
 
-    public function getMessage()
+    public function getData()
     {
-        return $this->data['message'] ?? null;
+        return $this->data;
     }
 }

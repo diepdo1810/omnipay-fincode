@@ -14,12 +14,14 @@ class GatewayTest extends TestCase
     {
         parent::setUp();
         $this->gateway = new Gateway();
+        $apiKey = getEnv('FINCODE_API_KEY');
         $this->gateway->setApiKey('m_test_NGE5MDlhZDItOTg4Mi00ZDRiLTk0ODItZWI1MzE3NGE0YzZhN2Q1NGIzZWEtYjg3OS00ZWY0LThjY2EtODdjZTY4MWQ4OTJic18yNDA1MTM0NjU1MA');
         $this->gateway->setTestMode(true);
     }
 
     public function testPurchase()
     {
+        // Step 1: Create a session
         $sessionId = 'o_'.generateCustomId(22);
         $requestParams = [
             "transaction" => [
@@ -27,33 +29,34 @@ class GatewayTest extends TestCase
                 "currency" => "JPY",
                 "order_id" => $sessionId,
             ],
-            "success_url" => "https://example.com/success",
+            "success_url" => "https://example.com/success". '?session_id=' . $sessionId,
             "cancel_url" => "https://example.com/cancel",
         ];
 
-        $request = $this->gateway->purchase();
-        $response = $request->sendData($requestParams);
-        $data = $response->getData();
+        $purchase = $this->gateway->purchase();
+        $responsePurchase = $purchase->sendData($requestParams);
 
-        $this->orderId = $sessionId;
-        $this->assertInstanceOf('Omnipay\Fincode\Message\PurchaseRequest', $request);
-        $this->assertNotEmpty($data['id']);
-        $this->assertEquals($sessionId, $data['transaction']['order_id']);
-        $this->assertNotEmpty($data['link_url']);
+        $this->assertInstanceOf('Omnipay\Fincode\Message\PurchaseRequest', $purchase);
+        $this->assertNotEmpty($responsePurchase->getData());
+        $this->assertNotEmpty($responsePurchase->getTransactionReference());
+        $this->assertEquals($sessionId, $responsePurchase->getTransactionId());
+        $this->assertNotEmpty($responsePurchase->getRedirectUrl());
 
+        // Step 2: Redirect to the payment page
+        // redirect to $responsePurchase->getRedirectUrl(): https://secure.test.fincode.jp/v1/links/lk_EGQAFB1oSyCvOU8MnNjLqQ
+        // submit card information
+
+
+        // Step 3: Complete the purchase, check the payment status
+        $completePurchase = $this->gateway->completePurchase();
+        $completePurchase->setTransactionId('o_8pVefsqWQ4GGEYXxCb3Mvw');
+        $response = $completePurchase->sendData([
+            'pay_type' => 'Card'
+        ]);
+
+        $this->assertInstanceOf('Omnipay\Fincode\Message\CompletePurchaseRequest', $completePurchase);
+        $this->assertNotEmpty($response->getData());
+        // $response->isSuccessful() === true if the payment is successful
+        $this->assertTrue($response->isSuccessful());
     }
-
-    /** TODO: Fix this test
-    public function testCompletePurchase()
-    {
-        $request = $this->gateway->completePurchase();
-        $data = [
-            'orderId' => $this->orderId
-        ];
-        $response = $request->sendData($data);
-        $data = $response->getData();
-
-        $this->assertInstanceOf('Omnipay\Fincode\Message\CompletePurchaseRequest', $request);
-        $this->assertEmpty($data);
-    } */
 }

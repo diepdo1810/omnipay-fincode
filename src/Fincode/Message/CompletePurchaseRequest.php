@@ -11,9 +11,9 @@ class CompletePurchaseRequest extends AbstractRequest
 
     public function sendData($data)
     {
-       /**
-        * @todo Implement this method
-        */
+        $sessionId = $this->getTransactionId();
+        $response = $this->sendRequest('GET', '/payments/' . $sessionId, $data);
 
+        return $this->response = new CompletePurchaseResponse($this, json_decode($response->getBody()->getContents(), true));
     }
 }

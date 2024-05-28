@@ -21,3 +21,35 @@ if (!function_exists('generateCustomId')) {
         return $customId;
     }
 }
+
+if (!function_exists('createEnv')) {
+    /**
+     * Create .env file.
+     *
+     * @param array $data
+     */
+    function createEnv(array $data)
+    {
+        $env = '';
+        foreach ($data as $key => $value) {
+            $env .= "$key=$value\n";
+        }
+
+        file_put_contents(__DIR__ . '/../.env', $env);
+    }
+}
+
+if (!function_exists('getEnv')) {
+    /**
+     * Get .env file.
+     *
+     * @param string $key
+     * @param string $default
+     *
+     * @return string
+     */
+    function getEnv(string $key, string $default = ''): string
+    {
+        return file_get_contents(__DIR__ . '/../.env')[$key] ?? $default;
+    }
+}
